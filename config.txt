@@ -1,0 +1,264 @@
+##### Config.txt The Purge Version Beta 0.3 ####
+################################################
+###
+###/purge join command
+###
+################################################
+guest:/purge [$purgechoice=''] [$teamchoice=''] = >>>
+	@purge = $purgechoice
+	@teamchoice = $teamchoice
+	###If no choice is selected from /purge command
+	if(equals(@purge, '')) {
+		die(color(4).'You need to specify an option, /purge join')
+		}
+	###
+	### If "join" command is triggered
+	###
+	if(equals(@purge, 'join')) {
+	@timerwaitinglist = import('timer.waitinglist')
+	###If the map is resseting
+	if(equals(@timerwaitinglist, 'reset')) {
+		die(color(4).'The Map is reseting. Wait until the reset is done.')
+		}
+	@player = player()
+	@verify = _verify()
+	###If player is already in game
+	if(array_contains(@verify, @player)) {
+		die(color(4).'You are listed like already Ingame.')
+		}
+	###If the game is already started.
+	if(equals(@timerwaitinglist, 'off')) {
+		die(color(4).'The Game is already Started. Wait until it finish.')
+		}
+	###Adding the player to the waiting list.
+	if(equals(@timerwaitinglist, 'on')) {
+	if(@teamchoice != '') {
+	if(!has_permission(@player, 'donator.vip')) {
+	die(color(4).'Only VIP and VIP+ can choose there team. Type /donate for more information')
+	}
+	if(@teamchoice != 'purgers' && @teamchoice != 'civils') {
+	die(color(4).'Error. Invalid team name. Team names are: - civils   - purgers')
+	}
+	_addtoviplist(@teamchoice, @player)
+	die(color(2).'You have been added to the'@teamchoice'waiting list, Please wait...')
+	}
+	if(@teamchoice == '') {
+		_addtolist(@player)
+		die(color(2).'You have been added to the waiting list, Please wait...')
+		}
+		}
+		}
+	###
+	### If "leave" command is triggered
+	###
+	if(equals(@purge, 'leave')) {
+		@player = player()
+		@verify = _verify()
+		###If player not in game
+		if(!array_contains(@verify, @player)) {
+			die(color(4).'You are NOT Ingame.')
+		}
+		if(array_contains(import('purger.game'), @player)) {
+			_remove_purger(@player)
+			set_ploc(@player, import('ident.purge.spawn'))
+			die(color(2).'You have quit the game')
+		}
+		if(array_contains(import('civil.game'), @player)) {
+			_remove_civil(@player)
+			set_ploc(@player, import('ident.purge.spawn'))
+			die(color(2).'You have quit the game')
+			}
+		if(array_contains(import('wait.list'), @player)) {
+			_remove_waiting(@player)
+			set_ploc(@player, import('ident.purge.spawn'))
+			die(color(2).'You have quit the game')
+			}
+			die(color(4).'error. Please inform administrator')
+			}
+	<<<
+
+##################################################
+###  /kit command   ##############################
+##################################################	
+guest:/kit [$kit=''] = >>> 
+@player = player()
+@kit = $kit
+if(has_permission(@player, 'donator.vip')) {
+if(import('kit.'.@player) == 'on') {
+die(color(4).'You already used your kit.')
+}
+@kitlist = import('kits.list')
+array_push(@kitlist, @player)
+export('kits.list', @kitlist)
+@purgers = import('purger.game')
+@civils = import('civil.game')
+if(array_contains(@purgers, @player)) {
+@team = 'purgers'
+}
+if(array_contains(@civils, @player)) {
+@team = 'civils'
+}
+if(@team == 'purgers') {
+if(@kit == '') {
+die(color(4).'Available kits for Purgers are: (VIP) -silentkiller -veterankiller (VIP+) -serialkiller')
+}
+if(@kit == 'silentkiller') {
+sudo('/give' @player '283 1')
+sudo('/give' @player '373:8206 1')
+export('kit.'.@player, 'on')
+die()
+}
+if(@kit == 'veterankiller') {
+sudo('/give' @player '272 1')
+sudo('/give' @player '311 1')
+export('kit.'.@player, 'on')
+die()
+}
+if(@kit == 'serialkiller') {
+if(has_permission(@player, 'donator.vip+')) {
+sudo('/give' @player '312 1')
+sudo('/give' @player '276 1')
+sudo('/give' @player '261 1')
+sudo('/give' @player '262 10')
+sudo('/give' @player '373:8194 1')
+export('kit.'.@player, 'on')
+die()
+}
+die(color(4).'You do not have permission to VIP+ Kit!')
+}
+}
+
+if(@team == 'civils') {
+if(@kit == '') {
+die(color(4).'Available kits for Purgers are: (VIP) -killer -hidder (VIP+) -prohidder')
+}
+if(@kit == 'killer') {
+sudo('/give' @player '283 1')
+sudo('/give' @player '322 5')
+sudo('/give' @player '373:8194 1')
+export('kit.'.@player, 'on')
+die()
+}
+if(@kit == 'hidder') {
+sudo('/give' @player '373:8206 1')
+sudo('/give' @player '121 10')
+export('kit.'.@player, 'on')
+die()
+}
+if(@kit == 'prohidder') {
+if(has_permission(@player, 'donator.vip+')) {
+sudo('/give' @player '373:8206 1')
+sudo('/give' @player '49 6')
+export('kit.'.@player, 'on')
+die()
+}
+die(color(4).'You do not have permission to VIP+ Kit!')
+}
+}
+die(color(4).'You cannot use your kit if your are not in any team.')
+}
+die(color(4).'You need to be VIP or VIP+ to have access to kits. Type /donate for more information')
+<<<
+
+
+##################################################
+###  /remains command   ###########################
+##################################################
+guest:/remains = >>>
+@timeleft = _timeleft()
+@civils = import('civil.game')
+@civilnames = array_implode(@civils, color(7).' - ')
+msg(color(2).'Less then'color(5).@timeleft color(2).'Minutes left, With'color(5).array_size(@civils) color(2).'Civils Alive')
+msg(color(8).@civilnames)
+<<<
+
+##################################################
+###  /teams command   ###########################
+##################################################
+guest:/teams = >>>
+@purger = import('purger.game')
+@civil = import('civil.game')
+@timerwaitinglist = import('timer.waitinglist')
+if(@timerwaitinglist != 'off') {
+die(color(4).'Game need to be started to use this command.')
+}
+tmsg(player(), color(b).'Purgers:'color(3).array_implode(@purger))
+tmsg(player(), color(b).'Civils:'color(3).array_implode(@civil))
+<<<
+##################################################
+###  /help command   #############################
+##################################################
+guest:/help = >>>
+msg(color(b).'/how'color(9).' - Get Explanations on How to play The Purge')
+msg(color(b).'/purge join'color(9).' - Join the Purge waiting list for next game.')
+msg(color(b).'/purge leave'color(9).' - Leave the Current game or the waiting list and teleport you to spawn.')
+msg(color(b).'/remains'color(9).' - Display how much time left to current game & remaining Civils names')
+msg(color(b).'/team'color(9).' - Display Players of each Teams')
+msg(color(b).'/money'color(9).' - Display your current money balance.')
+msg(color(b).'/inviteall'color(9).' - Make a global message to invite Users to play The Purge!.')
+msg(color(b).'/minigames'color(9).' - Quit the Purge and join the MiniGames Lobby.')
+msg(color(b).'/hub'color(9).' - Quit the Purge and join the Main HUB.')
+<<<
+
+##################################################
+###  /how command   #############################
+##################################################
+guest:/how = >>>
+msg(color(b).'-'color(9).' The Purge is like Hide and Seek WITH Weapons, Blocks, TNT and MORE FUN! ')
+msg(color(b).'Purgers:'color(9).' Purgers goal is to find every Civils and kill them. ')
+msg(color(b).'-'color(9).' Purgers can buy weapons, armor, TnT, food and more at there Spawn. ')
+msg(color(b).'-'color(9).' TnT is very usefull to reach well hidden Civils. ')
+msg(color(b).'Civils:'color(9).' Civils goal is to hide until the game end. (10 minutes) ')
+msg(color(b).'-'color(9).' Civilss can buy weapons, armor, blocks, food and more at there Spawn. ')
+msg(color(b).'-'color(9).' Block are very usefull to completely hide yourself or to block doors. ')
+msg(color(b).'-'color(9).' More Expensive is a block, stronger will be its TNT resistance. ')
+<<<
+
+##################################################
+###  /invite command   ###########################
+##################################################
+guest:/inviteall = >>>
+@status = import('invite.cmd')
+if(@status == 'on') {
+die(color(4).'This command is not available right now. It is not the moment or it have already been used.')
+}
+sudo('/g Join the awesome minigame The Purge right now! Type /server purgeone. The game is about to start!')
+export('invite.cmd', 'on')
+<<<
+
+	
+##################################################
+###  /donate command   ###########################
+##################################################
+
+guest:/donate [$f2=''] = >>>
+@donate = $f2
+if(equals(@donate, ''),
+sudo('/say' player()', Donator Shop link: http://dragonsdoom.buycraft.net')
+msg(color(4).'Donator Shop link: http://dragonsdoom.buycraft.net')
+die()),
+ifelse(not(equals(@donate, '')) && if(has_permission(player(), 'essentials.mute'),
+sudo('/say' @donate', Donator Shop link: http://dragonsdoom.buycraft.net')),
+
+sudo('/say' player()', Donator Shop link: http://dragonsdoom.buycraft.net'))
+<<<
+
+
+guest:/away = >>>
+if(has_permission(player(), 'essentials.afk')) {
+sudo('/eafk')
+}
+<<<
+guest:/brb = >>>
+if(has_permission(player(), 'essentials.afk')) {
+sudo('/eafk')
+}
+<<<
+
+	
+	
+	
+	
+	
+	
+	
