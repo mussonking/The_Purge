@@ -23,7 +23,7 @@ bind(player_quit, null, null, @event,
 		}
 		@timeleft = _timeleft()
 	if(@timeleft > 8) {
-	acc_subtract(@quitname, 50)
+	acc_subtract(@quitname, 10)
 	}
 	###If the player is a purger
 	@purgerlist = import('purger.game')
@@ -100,6 +100,15 @@ modify_event('location', import('ident.purge.spawn'))
 @civilarray = import('purger.game')
 if(array_contains(@civilarray, @respawnname)) {
 modify_event('location', import('ident.purge.purger'))
+set_timeout(5000, closure(
+			_emptyinv(@respawnname)
+				pgive_item(@respawnname, 306, 1)
+				pgive_item(@respawnname, 307, 1)
+				pgive_item(@respawnname, 308, 1)				
+				pgive_item(@respawnname, 309, 1)
+				pgive_item(@respawnname, 267, 1)
+				pgive_item(@respawnname, 391, 10)
+))
 }
 )
 
@@ -113,7 +122,7 @@ bind(player_death, null, null, @killbind,
 	###If the killed player is a civil
 	if(array_contains(@civillist, @killedplayer)) {
 		###If the civil killed was the last one alive.
-		if(array_size(@civillist) == '1') { # THIS IS FOR A TEST ---< REPLACE By -- 1 -- when done.
+		if(array_size(@civillist) == '1') { 
 			_endgame('purger')
 			die()
 			}
@@ -125,12 +134,12 @@ bind(player_death, null, null, @killbind,
 		export('civil.game', @civillist)
 		export('purger.game', @purgerlist)
 		if(@kill != null) {
-		tmsg(@killer, color(2).'You killed' @killedplayer 'You have been awarned 4$')
-		acc_add(@killer, '4')
+		tmsg(@killer, color(2).'You killed' @killedplayer 'You have been awarned 3$')
+		acc_add(@killer, '3')
 		}
 		if(_timeleft() < 3) {
-		acc_add(@killedplayer, '10')
-		tmsg(@killedplayer, color(2).'You have been awarned 20$ for surviving more then 7 minutes')
+		acc_add(@killedplayer, '5')
+		tmsg(@killedplayer, color(2).'You have been awarned 5$ for surviving more then 7 minutes')
 		}
 	##### BROADCAST PART ######
 		###If this is not the last civil alive
@@ -156,11 +165,11 @@ bind(player_death, null, null, @killbind,
 		array_remove_values(@purgerlist, @killedplayer)
 		export('purger.game', @purgerlist)
 		if(@kill != null) {
-		tmsg(@killer, color(2).'You killed' @killedplayer 'You have been awarned 7$')
-		acc_add(@killer, '7')
+		tmsg(@killer, color(2).'You killed' @killedplayer 'You have been awarned 5$')
+		acc_add(@killer, '5')
 		}
-		tmsg(@killedplayer, color(2).'You Have been killed. You lost 5$')
-		acc_subtract(@killedplayer, '5')
+		tmsg(@killedplayer, color(2).'You Have been killed. You lost 2$')
+		acc_subtract(@killedplayer, '2')
 	##### BROADCAST PART ######
 		###If this is not the last civil alive
 		if(array_size(@purgerlist) > '1') {

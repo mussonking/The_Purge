@@ -135,8 +135,14 @@ proc(_startgame,
 			foreach(@civilarray, @name) {
 				set_ploc(@name, import('ident.purge.civil'))
 				sudo('/scoreboard teams join civils' @name)
-				acc_add(@name, '100')
-
+				tmsg(@name, color(6).'You are in the Civils team! Type /teams for more information')
+				acc_add(@name, '20')
+				pgive_item(@name, 298, 1)
+				pgive_item(@name, 299, 1)
+				pgive_item(@name, 300, 1)				
+				pgive_item(@name, 301, 1)
+				pgive_item(@name, 268, 1)
+				pgive_item(@name, 391, 10)				
 				}
 								broadcast(color(2).'Civils were teleported to there spawn. They have 1 minutes to hide themself.')
 			))
@@ -145,8 +151,14 @@ proc(_startgame,
 			foreach(@purgerarray, @name) {
 				set_ploc(@name, import('ident.purge.purger'))
 				sudo('/scoreboard teams join purgers' @name)
-				acc_add(@name, '100')
-
+				tmsg(@name, color(6).'You are in the Purgers team! Type /teams for more information')
+				acc_add(@name, '20')
+				pgive_item(@name, 306, 1)
+				pgive_item(@name, 307, 1)
+				pgive_item(@name, 308, 1)				
+				pgive_item(@name, 309, 1)
+				pgive_item(@name, 267, 1)
+				pgive_item(@name, 391, 10)
 				}
 								broadcast(color(2).'Purgers have been teleported. They can now hunt Civils!')))
 				###Starting the timeout to auto restart the game after 15 minutes

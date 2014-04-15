@@ -222,7 +222,7 @@ guest:/inviteall = >>>
 if(@status == 'on') {
 die(color(4).'This command is not available right now. It is not the moment or it have already been used.')
 }
-sudo('/g Join the awesome minigame The Purge right now! Type /server purgeone. The game is about to start!')
+sudo('/g Join the awesome minigame The Purge right now! Type /server minigames  The game is about to start!')
 export('invite.cmd', 'on')
 <<<
 
